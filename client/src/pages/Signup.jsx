@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 
 const Signup = () => {
 	const [formData, setFormData] = useState({});
+	const [error, setError] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const navigate = useNavigate();
 
 	const handleChange = (e) => {
 		setFormData({...formData, [e.target.id]: e.target.value});
@@ -11,6 +14,8 @@ const Signup = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
+			setLoading(true);
+			setError(false);
 			const res = await fetch("/api/auth/signup", {
 				method: 'POST',
 				headers: {
@@ -19,9 +24,16 @@ const Signup = () => {
 				body: JSON.stringify(formData),
 			});
 			const data = await res.json();
-			console.log(data);
+			setLoading(false);
+			if (data.success == false) {
+				setError(true);
+				return;
+			}
+			navigate('/sign-in');
+			alert('Sign up successfully!');
 		} catch (err) {
-			console.error(err.message);
+			setLoading(false);
+			setError(true);
 			
 		}
 	};
@@ -51,11 +63,18 @@ const Signup = () => {
 					className="bg-slate-100 p-3 rounded-lg"
 					onChange={handleChange}
 				/>
-				<button className="bg-slate-700 p-3 rounded-lg text-white uppercase hover:opacity-95 disabled:opacity-80">Sign Up</button>
+				<button 
+					disabled={loading} className="bg-slate-700 p-3 rounded-lg text-white uppercase hover:opacity-95 disabled:opacity-80"
+				>
+					{loading ? "Loading..." : "Sign Up"}
+				</button>
 			</form>
 			<div className="flex gap-2 mt-5">
 				<p>Have an account?</p>
 				<Link to='/sign-in' className="text-blue-500">Sign In</Link>
+			</div>
+			<div>
+				<p className='text-red-700 mt-5'>{error && "Something went wrong!"}</p>
 			</div>
 		</div>
 	)

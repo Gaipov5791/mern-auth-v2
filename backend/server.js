@@ -7,7 +7,6 @@ const port = process.env.port || 5000;
 import connectDB from './config/db.js';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
-import {errorHandler, notFound} from './middleware/errorMiddleware.js';
 
 connectDB();
 
@@ -20,8 +19,15 @@ app.use(express.urlencoded({extended:true}));
 app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 
-app.use(notFound);
-app.use(errorHandler);
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    return res.status(statusCode).json({
+        success: false,
+        message,
+        statusCode,
+    });
+});
 
 app.get('/', (req, res) => {
     res.send("Server is OK!");
