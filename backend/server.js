@@ -5,13 +5,22 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import colors from 'colors';
 const port = process.env.port || 5000;
+import path from 'path';
 import connectDB from './config/db.js';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 
 connectDB();
 
+const __dirname = path.resolve();
+
 const app = express();
+
+app.use(express.static(path.join(__dirname, '/client/dist')));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
 
 app.use(cors());
 app.use(express.json());
