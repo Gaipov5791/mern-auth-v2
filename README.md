@@ -1,1 +1,1 @@
-# mern-auth2
+# mern-auth-v2
